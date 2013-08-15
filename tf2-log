@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+"""tf2-log
+
+Usage:
+    logparser show players [--logfile=FILE -f FILE]
+    logparser show count [--logfile=FILE -f FILE]
+    logparser [-h | --help | --version]
+
+Options:
+    -f --logfile=FILE  File to parse. [default: example.log]
+    --version          Show the version.
+    -h --help          Show this help.
+"""
+from docopt import docopt
+import re
+
+
+class Player(object):
+    name = ''
+    steam_id = ''
+
+
+    def __init__(self, name='', steam_id=''):
+        self.name = name
+        self.steam_id = steam_id
+
+
+    def __repr__(self):
+        return self.name + ' -- ' + self.steam_id
+
+
+    def __eq__(self, rhs):
+        return self.steam_id == rhs.steam_id
+
+
+    def __hash__(self):
+        if self.steam_id:
+            return int(self.steam_id.split(':')[-1])
+        return 0
+
+
+def get_unique_players(logfile):
+    players = set()
+    with open(logfile, 'r') as fh:
+        for line in fh:
+            player = get_player_from_line(line)
+            if player.name:
+                players.add(player)
+    return players
+
+
+def get_player_from_line(line):
+    """Retrieves a Player() from a given line."""
+    # Log lines look like
+    # L 08/15/2013 - 04:58:36: "PLAYERNAME<DIGITS><STEAMID><>" connected, address "IP"
+    regexp = '"(?P<name>.*?)<\d+><(?P<steam_id>.*?)>'
+    line_info = re.search(regexp, line)
+    if line_info:
+        return Player(line_info.group('name'), line_info.group('steam_id'))
+    return Player()
+
+
+if __name__=='__main__':
+    args = docopt(__doc__, version="0.01")
+    if args['show']:
+        players = get_unique_players(args['--logfile'][0])
+    else:
+        print __doc__
+    if args['players']:
+        for player in players:
+            print player
+    elif args['count']:
+        print len(players)
