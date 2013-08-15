@@ -3,12 +3,11 @@
 """tf2-log
 
 Usage:
-    logparser show players [--logfile=FILE -f FILE]
-    logparser show count [--logfile=FILE -f FILE]
-    logparser [-h | --help | --version]
+    tf2-log show players <logfile>
+    tf2-log show count <logfile>
+    tf2-log [-h | --help | --version]
 
 Options:
-    -f --logfile=FILE  File to parse. [default: example.log]
     --version          Show the version.
     -h --help          Show this help.
 """
@@ -64,7 +63,7 @@ def get_player_from_line(line):
 if __name__=='__main__':
     args = docopt(__doc__, version="0.01")
     if args['show']:
-        players = get_unique_players(args['--logfile'][0])
+        players = get_unique_players(args['<logfile>'])
     else:
         print __doc__
     if args['players']:
